@@ -1,0 +1,165 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>数字化运营大数据可视中心</title>
+		<link href="./css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="./css/common.css" type="text/css" charset="utf-8"/>
+		<link rel="stylesheet" type="text/css" href="./css/index.css"/>
+	</head>
+	<body>
+		<div id="" class="container">
+			<div class="logo">
+				<img src="img/nos.png" class="logo-nos">
+				<div class="logo-box">
+					<img src="img/logo.png" class="logo-img">
+					<div class="logo-txt">
+						数字化运营大数据可视中心
+					</div>	
+				</div>
+			</div>
+			<div id="" class="help-con">
+				您好！我是小诺，点击我设置IP吧~
+			</div>
+			<div id="" class="content">
+				<div class="line-s line-s1"></div>
+				<div class="line-s line-s2"></div>
+				<div class="line-s line-s3"></div>
+				<div class="line-s line-s4"></div>
+				<div class="line-s line-s5"></div>
+			</div>
+			<div class="tip-content">
+				<div class="line-content start">
+					<div class="linewave linewave1"></div>
+					<div class="linewave linewave2"></div>
+					<div class="linewave linewave3"></div>
+					<img src="img/video.png" class="msg-video">	
+				</div>
+				<div class="tip-text">
+					点击按钮呼唤“进入物流大赛”试试吧！
+				</div>
+				<div class="copyright" >Copyright©2020 ShenZhen.NOS All Rights Reserved Version 1.0</div>
+			</div>
+			<!-- 切换按钮区 -->
+			<button type="button" class="mui-btn mui-btn-primary openBtn">打开按钮区</button>
+	</body>
+	<script src="./js/lib/jquery/jquery.min.js"></script>
+	<script src="./js/lib/mui/mui.min.js"></script>
+	<script type="text/javascript" src="./js/app.js"></script>
+	<script type="text/javascript">
+			(function(mui, doc) {
+				var address =localStorage.getItem('address') || 'http://';
+				mui.init({
+					statusBarBackground: '#f7f7f7'
+				});
+				mui.plusReady(function() {
+					// plus.nativeUI.toast('welcome');
+					
+					var backButtonPress = 0;
+					mui.back = function(event) {
+						backButtonPress++;
+						if(backButtonPress > 1) {
+							plus.runtime.quit();
+						} else {
+							plus.nativeUI.toast('再按一次退出应用');
+						}
+						setTimeout(function() {
+							backButtonPress = 0;
+						}, 1000);
+						return false;
+					};
+					// 上传
+					function createUpload(text) {
+							mui.showLoading();
+							var data1 = JSON.stringify({
+									requestBody: {
+										data: text
+									}
+								})
+							$.ajax({
+							    url: address + '/admin/board/saying',
+							    data: data1,
+							    type: "post",
+							    dataType: "json",
+							    async: true,
+							    contentType: "application/json",
+							    headers: {
+							        Accept: "application/json; charset=utf-8"
+							    },
+							    success: function (data) {
+							        mui.hideLoading();
+									// console.log(JSON.stringify(data));
+							        if (data.code == '200') {
+										if(data.responseBody.code != '200'){
+											mui.alert(data.responseBody.message,'',['确认'],null,'div');
+										}
+							        } else {
+										mui.alert('请重新唤醒！','',['确认'],null,'div');
+							        }
+							    },
+							    //网络请求失败
+							    error: function (msg) {
+									mui.hideLoading();
+									mui.alert('请配置可连接的IP地址！','',['确认'],null,'div');
+							    }
+							});
+						}
+					//语音识别
+					function startRecognize() {
+						if(!address){
+							mui.alert('请配置IP地址！','',['确认'],null,'div');
+							return false;
+						}
+						var options = {
+							engine: 'baidu'
+						};
+						var value = '';
+						plus.speech.startRecognize(options, function(s){
+							value += s;
+							// console.log(value);
+							createUpload(value);
+							$('.linewave1').removeClass('speech');
+							$('.linewave2').removeClass('speech');
+							$('.linewave3').removeClass('speech');
+						}, function(e){
+							$('.linewave1').removeClass('speech');
+							$('.linewave2').removeClass('speech');
+							$('.linewave3').removeClass('speech');
+						} );
+					}
+					$('.start').click(function(){
+						$('.linewave1').addClass('speech');
+						$('.linewave2').addClass('speech');
+						$('.linewave3').addClass('speech');
+						startRecognize();
+					})
+					//配置ip
+					// setTimeout(function(){
+					// 	$('.help-con').css({
+					// 		'display':'none'
+					// 	})
+					// },5000)
+					
+					$('.content').click(function(){
+						mui.prompt('例如:http://192.168.2.41:9090','IP','设置IP地址',['取消','确认'],function(evt){
+							console.log(JSON.stringify(evt))
+							if(evt.index == 1){
+								address = evt.value;
+								localStorage.setItem('address',address);
+							}
+						},'div');
+						document.querySelector('.mui-popup-input input').value= address;
+					})
+					$('.openBtn').click(function(){
+						mui.openWindow({
+							url: 'control.html',
+							id: 'control'
+						});
+					})
+				});
+			}(mui,document));
+	</script>
+</html>

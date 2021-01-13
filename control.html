@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="./css/mui.min.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<div id="">
+			<!-- 切换语音区 -->
+			<button type="button" class="mui-btn mui-btn-primary mui-action-back">返回语音区</button>
+			<ul class="mui-table-view"> 
+			        <li class="mui-table-view-cell">
+			            <a class="mui-navigate-right toLook" data-id="AI">AI凤凰云</a>
+			        </li>
+					<li class="mui-table-view-cell mui-collapse">
+					    <a class="mui-navigate-right toLook" data-id="logist">物流大赛</a>
+						<ul class="mui-table-view mui-table-view-chevron">
+							<li class="mui-table-view-cell">
+								<a class="mui-navigate-right toChange" data-id="bigData">
+									大赛数据统计
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a class="mui-navigate-right toChange" data-id="express">
+									快递职业技能大赛
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a class="mui-navigate-right toChange" data-id="chain">
+									全国连锁经营行业职业技能竞赛
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a class="mui-navigate-right toChange" data-id="supply">
+									供应链大赛
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a class="mui-navigate-right toChange" data-id="freight">
+									货运练习赛
+								</a>
+							</li>
+						</ul>
+					</li>
+					<li class="mui-table-view-cell">
+					    <a class="mui-navigate-right toLook" data-id="NS">NS实训平台</a>
+					</li>
+					<li class="mui-table-view-cell">
+					    <a class="mui-navigate-right toLook" data-id="train">适岗培训</a>
+					</li>
+			    </ul>
+				<div id="sheet1" class="mui-popover mui-popover-bottom mui-popover-action">
+				    <!-- 可选择菜单 -->
+				    <ul class="mui-table-view main-popover">
+				      <li class="mui-table-view-cell">
+				        <a href="#sheet1" class="base">显示基本数据框</a>
+				      </li>
+				      <li class="mui-table-view-cell">
+				        <a href="#sheet1" class="school">显示院校数据框</a>
+				      </li>
+				    </ul>
+				    <!-- 取消菜单 -->
+				    <ul class="mui-table-view">
+				      <li class="mui-table-view-cell">
+				        <a href="#sheet1"><b>取消</b></a>
+				      </li>
+				    </ul>
+				</div>
+		</div>
+		<script src="./js/lib/jquery/jquery.min.js"></script>
+		<script src="./js/lib/mui/mui.min.js"></script>
+		<script type="text/javascript" src="./js/app.js"></script>
+		<script type="text/javascript">
+			mui.init({
+				swipeBack:true
+			})
+			mui.plusReady(function() {
+				var address = localStorage.getItem('address');
+				function post(id){
+					mui.showLoading();
+					var data = JSON.stringify({
+						requestBody: {
+							data: id
+						}
+					})
+					$.ajax({
+					    url: address + '/admin/board/say-code',
+					    data: data,
+					    type: "post",
+					    dataType: "json",
+					    async: true,
+					    contentType: "application/json",
+					    headers: {
+					        Accept: "application/json; charset=utf-8"
+					    },
+					    success: function (res) {
+					       mui.hideLoading();
+							// console.log(JSON.stringify(res));
+							if(res.responseBody.code != '200'){
+								mui.alert(res.responseBody.message,'',['确认'],null,'div');
+							}
+					    },
+					    //网络请求失败
+					    error: function (msg) {
+							mui.hideLoading();
+							mui.alert('请配置可连接的IP地址！','',['确认'],null,'div');
+					    }
+					});
+				}
+				let mainAction;
+				mui(".mui-table-view").on('tap','.toLook',function(){
+				  var id = this.getAttribute("data-id");
+				  mainAction = id;
+				  // console.log(id);
+				  // console.log(address);
+				  if(!address){
+					mui.alert('请前往语音区配置IP地址！','',['确认'],null,'div');
+					return false;
+				  }
+				  post(id);
+				}) 
+				let action = '';
+				mui(".mui-table-view-chevron").off('tap','.toChange').on('tap','.toChange',function(){
+					var id = this.getAttribute("data-id");
+					// console.log(id);
+					action = id;
+					mui('#sheet1').popover('toggle');
+				})
+				mui(".main-popover").on('tap','.base',function(){
+					if(mainAction != 'logist'){
+						mui.alert('请前往物流大赛大屏后再点击！','',['确认'],null,'div');
+						return false;
+					}
+					post(action);
+				})
+				mui(".main-popover").on('tap','.school',function(){
+					if(mainAction != 'logist'){
+						mui.alert('请前往物流大赛大屏后再点击！','',['确认'],null,'div');
+						return false;
+					}
+					post(action+'-school');
+				})
+			})
+		</script>
+	</body>
+
+</html>
